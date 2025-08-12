@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (selectedRole == "Anganwadi Worker") {
                         Navigator.pushReplacementNamed(context, '/ann-dashboard');
                       } else if (selectedRole == "Administrator") {
-                        Navigator.pushReplacementNamed(context, '/view-profiles');
+                        Navigator.pushReplacementNamed(context, '/admin-dashboard');
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

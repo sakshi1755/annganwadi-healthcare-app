@@ -6,6 +6,7 @@ import 'pages/add_child_basic_info.dart';
 import 'pages/add_child_additional_info.dart';
 import 'pages/child_profile.dart';
 import 'pages/view_profiles.dart';
+import 'pages/admin_dashboard.dart'; 
 
 void main() {
   runApp(const MyApp());
@@ -25,17 +26,18 @@ class MyApp extends StatelessWidget {
         primaryColor: const Color(0xFF00C896),
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
       ),
-
+      
       // Set up routes
       initialRoute: '/',
       routes: {
         '/': (context) => const LandingPage(),
         '/login': (context) => const LoginScreen(),
-        '/ann-dashboard': (context) => const Dashboard(),
+        '/dashboard': (context) => const Dashboard(),
         '/add-child-basic': (context) => const AddChildBasicInfo(),
         '/add-child-additional': (context) => const AddChildAdditionalInfo(),
         '/child-profile': (context) => const ChildProfile(),
         '/view-profiles': (context) => const ViewProfiles(),
+        '/admin-dashboard': (context) => const AdminDashboard(), // Add this route
       },
     );
   }
