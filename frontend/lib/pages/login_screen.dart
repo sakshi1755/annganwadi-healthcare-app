@@ -9,7 +9,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String selectedRole = "Anganwadi Worker";
+  String selectedRole = "Anganwadi Worker"; // Default role
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: Colors.green,
                     ),
                     onPressed: () {
-                      // Google Sign-In Logic
+                      if (selectedRole == "Anganwadi Worker") {
+                        Navigator.pushReplacementNamed(context, '/ann-dashboard');
+                      } else if (selectedRole == "Administrator") {
+                        Navigator.pushReplacementNamed(context, '/view-profiles');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please select a role to continue'),
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.email, color: Colors.white),
                     label: Text(
