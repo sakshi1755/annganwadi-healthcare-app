@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1008474113405",
+    "project_id": "anganwadi-project-74107",
+    "storage_bucket": "anganwadi-project-74107.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1008474113405:android:0d28f1ec75fc753ce7b814",
+        "android_client_info": {
+          "package_name": "com.example.ang_frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1008474113405-s0sfvp4u21vjruah4do3e01vr6cdoioj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVlYrs2d50j6uZBhEQL_RWwuDnKIttsVc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1008474113405-s0sfvp4u21vjruah4do3e01vr6cdoioj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

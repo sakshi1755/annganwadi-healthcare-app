@@ -1,0 +1,185 @@
+# ===================================
+# ROOT .gitignore
+# ===================================
+
+# ===================================
+# BACKEND (Node.js/Express)
+# ===================================
+
+# Backend node modules
+backend/node_modules/
+backend/package-lock.json
+
+# Environment variables
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# Logs
+backend/logs/
+backend/*.log
+backend/npm-debug.log*
+backend/yarn-debug.log*
+backend/yarn-error.log*
+
+# OS files
+backend/.DS_Store
+backend/Thumbs.db
+
+# IDE files
+backend/.vscode/
+backend/.idea/
+backend/*.swp
+backend/*.swo
+backend/*~
+
+# ===================================
+# FLUTTER FRONTEND
+# ===================================
+
+# Flutter build output
+ang_frontend/build/
+ang_frontend/.dart_tool/
+ang_frontend/.flutter-plugins
+ang_frontend/.flutter-plugins-dependencies
+ang_frontend/.packages
+ang_frontend/.pub-cache/
+ang_frontend/.pub/
+ang_frontend/pubspec.lock
+
+# Generated files
+ang_frontend/**/*.g.dart
+ang_frontend/**/*.freezed.dart
+ang_frontend/**/*.mocks.dart
+
+# Coverage
+ang_frontend/coverage/
+
+# Android
+ang_frontend/android/app/debug
+ang_frontend/android/app/profile
+ang_frontend/android/app/release
+ang_frontend/android/.gradle/
+ang_frontend/android/captures/
+ang_frontend/android/gradlew
+ang_frontend/android/gradlew.bat
+ang_frontend/android/local.properties
+ang_frontend/android/**/GeneratedPluginRegistrant.java
+ang_frontend/android/key.properties
+ang_frontend/android/**/*.jks
+ang_frontend/android/**/*.keystore
+
+# iOS
+ang_frontend/ios/Flutter/.last_build_id
+ang_frontend/ios/Flutter/Flutter.framework
+ang_frontend/ios/Flutter/Flutter.podspec
+ang_frontend/ios/Flutter/Generated.xcconfig
+ang_frontend/ios/Flutter/app.flx
+ang_frontend/ios/Flutter/app.zip
+ang_frontend/ios/Flutter/flutter_assets/
+ang_frontend/ios/Flutter/flutter_export_environment.sh
+ang_frontend/ios/ServiceDefinitions.json
+ang_frontend/ios/Runner/GeneratedPluginRegistrant.*
+ang_frontend/ios/Pods/
+ang_frontend/ios/.symlinks/
+ang_frontend/ios/**/dgph
+ang_frontend/ios/**/*.mode1v3
+ang_frontend/ios/**/*.mode2v3
+ang_frontend/ios/**/*.moved-aside
+ang_frontend/ios/**/*.pbxuser
+ang_frontend/ios/**/*.perspectivev3
+ang_frontend/ios/**/*sync/
+ang_frontend/ios/**/.sconsign.dblite
+ang_frontend/ios/**/.tags*
+ang_frontend/ios/**/.vagrant/
+ang_frontend/ios/**/DerivedData/
+ang_frontend/ios/**/Icon?
+ang_frontend/ios/**/Pods/
+ang_frontend/ios/**/.idea
+ang_frontend/ios/**/xcuserdata
+ang_frontend/ios/.generated/
+
+# Web
+ang_frontend/web/flutter_service_worker.js
+ang_frontend/web/version.json
+
+# macOS
+ang_frontend/macos/Flutter/GeneratedPluginRegistrant.swift
+ang_frontend/macos/Flutter/Flutter-Debug.xcconfig
+ang_frontend/macos/Flutter/Flutter-Release.xcconfig
+
+# Windows
+ang_frontend/windows/flutter/generated_plugin_registrant.cc
+ang_frontend/windows/flutter/generated_plugin_registrant.h
+ang_frontend/windows/flutter/generated_plugins.cmake
+
+# Linux
+ang_frontend/linux/flutter/generated_plugin_registrant.cc
+ang_frontend/linux/flutter/generated_plugin_registrant.h
+ang_frontend/linux/flutter/generated_plugins.cmake
+
+# ===================================
+# GENERAL
+# ===================================
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+
+# Logs
+*.log
+logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+
+# ===================================
+# PROJECT SPECIFIC
+# ===================================
+
+# Uploaded photos (if stored locally)
+uploads/
+photos/
+temp_uploads/
+
+# Test data backups
+backup/
+*.backup
+
+# Documentation builds
+docs/build/
+
+# API keys and secrets (double check)
+**/secrets.json
+**/credentials.json
+**/*_secrets.*
+**/*_credentials.*
