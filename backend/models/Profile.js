@@ -23,7 +23,11 @@ const ProfileSchema = new mongoose.Schema({
         uploadedAt: { type: Date, default: Date.now }
     }],
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    // Add these fields after the existing fields
+predictedHeight: { type: Number, default: null },
+lastHeightUpdate: { type: Date, default: null }
+
 });
 
 module.exports = mongoose.model('Profile', ProfileSchema);

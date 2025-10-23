@@ -572,7 +572,9 @@ const connectDB = require('./config/database');
 const initializeTestData = require('./utils/testData');
 const errorHandler = require('./middleware/errorHandler');
 
+
 // Import routes
+const heightPredictionRoutes = require('./routes/heightPredictionRoutes');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const anganwadiRoutes = require('./routes/anganwadiRoutes');
@@ -583,6 +585,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -605,6 +608,7 @@ app.use('/api', authRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/anganwadis', anganwadiRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/height', heightPredictionRoutes);
 
 // 404 Handler
 app.use((req, res) => {

@@ -145,92 +145,270 @@ class _ChildProfileState extends State<ChildProfile> {
     return 0;
   }
 
-  Future<void> _handleImageUpload(ImageSource source) async {
-    Navigator.pop(context); // Close bottom sheet
-    
-    setState(() {
-      isUploading = true;
-    });
+// Add this state variable at the top with other state variables
+List<XFile> _selectedImages = [];
 
-    try {
-      final ImagePicker picker = ImagePicker();
+// Replace _handleImageUpload method
+Future<void> _handleImageUpload(ImageSource source) async {
+  Navigator.pop(context); // Close bottom sheet
+  
+  try {
+    final ImagePicker picker = ImagePicker();
+    
+    if (source == ImageSource.camera) {
+      // Take photo with camera
       final XFile? image = await picker.pickImage(
         source: source,
         maxWidth: 1920,
         maxHeight: 1080,
         imageQuality: 85,
       );
-
-      if (image == null) {
-        // User cancelled
+      
+      if (image != null) {
         setState(() {
-          isUploading = false;
+          _selectedImages.add(image);
         });
-        return;
-      }
-
-      // Show picked image info
-      print('Image picked: ${image.path}');
-      print('Image size: ${await image.length()} bytes');
-
-      // In a production app, you would:
-      // 1. Upload the image file to cloud storage (Firebase Storage, AWS S3, Cloudinary)
-      // 2. Get the public URL from the storage
-      // 3. Run AI prediction on the image (send to ML model API)
-      // 4. Send the URL and prediction to your backend
-
-      // For now, we'll simulate the upload with the local file info
-      await Future.delayed(const Duration(seconds: 1));
-
-      final photoData = {
-        'photoUrl': 'file://${image.path}', // In production, this would be the cloud storage URL
-        'predictionResult': 'healthy', // This would come from your AI model
-        'predictionConfidence': 0.92,
-      };
-
-      final response = await http.post(
-        Uri.parse('$API_BASE_URL/api/profiles/$profileId/photos'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(photoData),
-      );
-
-      if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true) {
-          await _loadChildProfile();
-          
+        
+        // Check if we have 4 images
+        if (_selectedImages.length == 4) {
+          _showAgeInputDialog();
+        } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Photo uploaded successfully!'),
-                backgroundColor: Color(0xFF00C896),
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: Text('${_selectedImages.length}/4 images captured. Take ${4 - _selectedImages.length} more.'),
+                backgroundColor: Colors.blue,
+                action: SnackBarAction(
+                  label: 'Continue',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    _handleImageUpload(ImageSource.camera);
+                  },
+                ),
               ),
             );
           }
         }
       }
-    } catch (e) {
-      print('Error uploading photo: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to upload photo: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
+    } else {
+      // Pick multiple from gallery
+      final List<XFile> images = await picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      
+      if (images.isNotEmpty) {
+        if (images.length != 4) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please select exactly 4 images'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+          return;
+        }
+        
         setState(() {
-          isUploading = false;
+          _selectedImages = images;
         });
+        
+        _showAgeInputDialog();
       }
     }
+  } catch (e) {
+    print('Error picking images: $e');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to pick images: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
+}
 
-  Future<void> _updateProfile(Map<String, dynamic> updates) async {
+// Add new method to show age input dialog
+Future<void> _showAgeInputDialog() async {
+  final ageController = TextEditingController();
+  
+  final result = await showDialog<double>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text('Enter Child Age'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter the child\'s age in months:'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ageController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Age in months',
+                border: OutlineInputBorder(),
+                hintText: 'e.g., 36',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _selectedImages.clear();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final age = double.tryParse(ageController.text);
+              if (age == null || age <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter a valid age'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+              Navigator.pop(context, age);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00C896),
+            ),
+            child: const Text('Submit'),
+          ),
+        ],
+      );
+    },
+  );
+  
+  if (result != null) {
+    await _uploadImagesAndPredict(result);
+  } else {
+    setState(() {
+      _selectedImages.clear();
+    });
+  }
+}
+
+// Add new method to upload images and get prediction
+Future<void> _uploadImagesAndPredict(double ageInMonths) async {
+  setState(() {
+    isUploading = true;
+  });
+
+  try {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$API_BASE_URL/api/height/predict'),
+    );
+
+    // Add profileId and age
+    request.fields['profileId'] = profileId!;
+    request.fields['ageInMonths'] = ageInMonths.toString();
+
+    // Add all 4 images
+    for (int i = 0; i < _selectedImages.length; i++) {
+      final image = _selectedImages[i];
+      final bytes = await image.readAsBytes();
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'images',
+          bytes,
+          filename: 'image_$i.jpg',
+        ),
+      );
+    }
+
+    print('Sending ${_selectedImages.length} images to ML model...');
+    
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success'] == true) {
+        final predictedHeight = data['predictedHeight'];
+        
+        // Clear selected images
+        setState(() {
+          _selectedImages.clear();
+        });
+        
+        // Reload profile to get updated height
+        await _loadChildProfile();
+        
+        if (mounted) {
+          // Show success dialog with predicted height
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Color(0xFF00C896)),
+                  SizedBox(width: 8),
+                  Text('Height Predicted!'),
+                ],
+              ),
+              content: Text(
+                'Predicted Height: ${predictedHeight.toStringAsFixed(1)} cm',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    } else {
+      final data = jsonDecode(response.body);
+      throw Exception(data['message'] ?? 'Prediction failed');
+    }
+  } catch (e) {
+    print('Error uploading images: $e');
+    setState(() {
+      _selectedImages.clear();
+    });
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  } finally {
+    if (mounted) {
+      setState(() {
+        isUploading = false;
+      });
+    }
+  }
+}  Future<void> _updateProfile(Map<String, dynamic> updates) async {
     try {
       final response = await http.put(
         Uri.parse('$API_BASE_URL/api/profiles/$profileId'),
@@ -557,6 +735,72 @@ class _ChildProfileState extends State<ChildProfile> {
             ),
             
             const SizedBox(height: 24),
+            // Add this after Health Status Card and before Upload Button
+          if (childData!['predictedHeight'] != null) ...[
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Predicted Height',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.height,
+                            color: Color(0xFF00C896),
+                            size: 32,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '${childData!['predictedHeight'].toStringAsFixed(1)} cm',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF00C896),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (childData!['lastHeightUpdate'] != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Updated: ${_formatDate(childData!['lastHeightUpdate'])}',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
             
             // Upload New Photo Button
             SizedBox(
