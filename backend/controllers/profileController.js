@@ -148,3 +148,124 @@ exports.addPhoto = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+exports.updateActualHeight = async(req,res)=>{
+    try{
+        const { actualHeight } = req.body;
+        if(actualHeight==null){
+            return res.status(400).json({ success: false, message: 'Actual height is required' });
+        }
+        const updateData={ actualHeight, lastActualHeightUpdate: new Date(), updatedAt: new Date() };
+        const profile =await Profile.findOneAndUpdate(
+            { profileId: req.params.profileId },
+            { $set: updateData },
+            { new: true }
+
+        );
+        if (!profile) {
+            return res.status(404).json({ success: false, message: 'Profile not found' });
+        }
+        res.json({ success: true, profile });
+    }catch(error){
+        res.status(500).json({ success: false, message: error.message });
+    }
+}
+exports.getModelAccuracy = async (req, res) => {
+    try {
+        const profiles = await Profile.find({
+            predictedHeight: { $ne: null },
+            actualHeight: { $ne: null },
+            predictedWeight: { $ne: null },
+            actualWeight: { $ne: null }
+        });
+
+        if (profiles.length === 0) {
+            return res.json({
+                success: true,
+                message: 'No data available for accuracy calculation',
+                totalProfiles: 0
+            });
+        }
+
+        let totalHeightError = 0;
+        let totalWeightError = 0;
+        let heightAccuracies = [];
+        let weightAccuracies = [];
+
+        profiles.forEach(profile => {
+            // Height metrics
+            const heightError = Math.abs(profile.predictedHeight - profile.actualHeight);
+            const heightErrorPercent = (heightError / profile.actualHeight) * 100;
+            const heightAccuracy = 100 - heightErrorPercent;
+            
+            totalHeightError += heightError;
+            heightAccuracies.push(heightAccuracy);
+
+            // Weight metrics
+            const weightError = Math.abs(profile.predictedWeight - profile.actualWeight);
+            const weightErrorPercent = (weightError / profile.actualWeight) * 100;
+            const weightAccuracy = 100 - weightErrorPercent;
+            
+            totalWeightError += weightError;
+            weightAccuracies.push(weightAccuracy);
+        });
+
+        // Calculate statistics
+        const avgHeightError = totalHeightError / profiles.length;
+        const avgHeightAccuracy = heightAccuracies.reduce((a, b) => a + b, 0) / heightAccuracies.length;
+        
+        const avgWeightError = totalWeightError / profiles.length;
+        const avgWeightAccuracy = weightAccuracies.reduce((a, b) => a + b, 0) / weightAccuracies.length;
+
+        // MAE (Mean Absolute Error)
+        const heightMAE = avgHeightError;
+        const weightMAE = avgWeightError;
+
+        // MAPE (Mean Absolute Percentage Error)
+        const heightMAPE = 100 - avgHeightAccuracy;
+        const weightMAPE = 100 - avgWeightAccuracy;
+
+        res.json({
+            success: true,
+            totalProfiles: profiles.length,
+            height: {
+                averageAccuracy: avgHeightAccuracy.toFixed(2),
+                averageError: avgHeightError.toFixed(2),
+                MAE: heightMAE.toFixed(2),
+                MAPE: heightMAPE.toFixed(2),
+                unit: 'cm'
+            },
+            weight: {
+                averageAccuracy: avgWeightAccuracy.toFixed(2),
+                averageError: (avgWeightError / 1000).toFixed(2),
+                MAE: (weightMAE / 1000).toFixed(2),
+                MAPE: weightMAPE.toFixed(2),
+                unit: 'kg'
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+exports.updateActualWeight=async(req,res)=>{
+    try{
+        const { actualWeight } = req.body;
+        if(actualWeight==null){
+            return res.status(400).json({ success: false, message: 'Actual weight is required' });
+        }
+        const updateData={ actualWeight, lastActualWeightUpdate: new Date(), updatedAt: new Date() };
+        const profile =await Profile.findOneAndUpdate(
+            { profileId: req.params.profileId },
+            { $set: updateData },
+            { new: true }
+
+        )
+        if(!profile){
+            return res.status(404).json({ success: false, message: 'Profile not found' });
+        }
+        res.json({ success: true, profile });
+    }catch(error){
+        res.status(500).json({ success: false, message: error.message });
+    }
+}

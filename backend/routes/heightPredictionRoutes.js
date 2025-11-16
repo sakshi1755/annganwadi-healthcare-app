@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { predictHeight } = require('../services/mlService');
+const { predictHeight, predictWeight } = require('../services/mlService');
 const Profile = require('../models/Profile');
 
 // Configure multer - no fileFilter, we'll validate manually
@@ -12,7 +12,7 @@ const upload = multer({
 
 router.post('/predict', upload.array('images', 4), async (req, res) => {
     try {
-        const { profileId, ageInMonths } = req.body;
+        const { profileId, ageInMonths, gender } = req.body;
         
         console.log('Received prediction request:', {
             profileId,
@@ -21,10 +21,18 @@ router.post('/predict', upload.array('images', 4), async (req, res) => {
         });
         
         // Validate inputs
-        if (!profileId || !ageInMonths) {
+       // Validate inputs
+        if (!profileId || !ageInMonths || !gender) {
             return res.status(400).json({
                 success: false,
-                message: 'profileId and ageInMonths are required'
+                message: 'profileId, ageInMonths, and gender are required'
+            });
+        }
+
+        if (!['m', 'f', 'male', 'female'].includes(gender.toLowerCase())) {
+            return res.status(400).json({
+                success: false,
+                message: 'gender must be "m", "f", "male", or "female"'
             });
         }
 
@@ -65,7 +73,9 @@ router.post('/predict', upload.array('images', 4), async (req, res) => {
 
         // Call ML API
         console.log('Calling ML API...');
-        const prediction = await predictHeight(imageBuffers, parseFloat(ageInMonths));
+        // Normalize gender to 'm' or 'f'
+        const normalizedGender = gender.toLowerCase().startsWith('m') ? 'm' : 'f';
+        const prediction = await predictHeight(imageBuffers, parseFloat(ageInMonths), normalizedGender);
 
         if (!prediction.success) {
             console.error('ML API error:', prediction.error);
@@ -113,5 +123,85 @@ router.post('/predict', upload.array('images', 4), async (req, res) => {
         });
     }
 });
+router.post('/predict-weight', async (req, res) => {
+    try {
+        const { profileId, heightCm, ageInMonths, gender } = req.body;
+        
+        // Validate inputs
+        if (!profileId || !heightCm || !ageInMonths || !gender) {
+            return res.status(400).json({
+                success: false,
+                message: 'profileId, heightCm, ageInMonths, and gender are required'
+            });
+        }
 
+        if (!['m', 'f', 'male', 'female'].includes(gender.toLowerCase())) {
+            return res.status(400).json({
+                success: false,
+                message: 'gender must be "m", "f", "male", or "female"'
+            });
+        }
+
+        console.log('Calling weight ML API...');
+        
+        const normalizedGender = gender.toLowerCase().startsWith('m') ? 'm' : 'f';
+        const prediction = await predictWeight(
+            parseFloat(heightCm), 
+            parseFloat(ageInMonths),
+            normalizedGender
+        );
+
+        if (!prediction.success) {
+            console.error('Weight ML API error:', prediction.error);
+            return res.status(500).json({
+                success: false,
+                message: prediction.error
+            });
+        }
+
+        console.log('Weight prediction successful:', prediction.predictedWeight);
+
+        // Calculate BMI: weight(kg) / height(m)²
+        const weightKg = prediction.predictedWeight / 1000; // grams to kg
+        const heightM = heightCm / 100; // cm to meters
+        const bmi = weightKg / (heightM * heightM);
+
+        // Update profile
+        const profile = await Profile.findOneAndUpdate(
+            { profileId },
+            {
+                $set: {
+                    predictedWeight: prediction.predictedWeight,
+                    bmi: bmi,
+                    lastWeightUpdate: new Date(),
+                    updatedAt: new Date()
+                }
+            },
+            { new: true }
+        );
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: 'Profile not found'
+            });
+        }
+
+        console.log('Profile updated with weight and BMI');
+
+        res.json({
+            success: true,
+            predictedWeight: prediction.predictedWeight,
+            bmi: bmi,
+            profile
+        });
+
+    } catch (error) {
+        console.error('Weight prediction error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Internal server error'
+        });
+    }
+});
 module.exports = router;

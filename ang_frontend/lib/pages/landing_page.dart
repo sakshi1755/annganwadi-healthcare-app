@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_logo.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -13,7 +14,7 @@ class LandingPage extends StatelessWidget {
             const SizedBox(height: 50),
             Column(
               children: [
-                Icon(Icons.favorite_border, size: 80, color: Colors.green),
+                AppLogo(size: 80, showText: false),
                 const SizedBox(height: 20),
                 const Text(
                   "आंगनवाड़ी स्वास्थ्य",

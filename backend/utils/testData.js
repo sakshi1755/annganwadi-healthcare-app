@@ -10,18 +10,7 @@ async function initializeTestData() {
             return;
         }
 
-        // Create test Anganwadis
-        const testAnganwadis = [
-            {
-                anganwadiId: 'AWC001',
-                name: 'Sunshine Anganwadi Center',
-                location: 'Mumbai North',
-                village: 'Andheri',
-                district: 'Mumbai',
-                workerIds: ['test_user_1']
-            }
-        ];
-        await Anganwadi.insertMany(testAnganwadis);
+   
 
         // Create test users
         const testUsers = [

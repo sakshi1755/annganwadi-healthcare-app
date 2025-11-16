@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../widgets/custom_app_bar.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -161,15 +162,10 @@ class _DashboardState extends State<Dashboard> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Color(0xFF00C896),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.favorite, color: Colors.white, size: 24),
-            ),
+          Image.asset(
+          'assets/images/logo.png',
+          height: 40,
+          ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

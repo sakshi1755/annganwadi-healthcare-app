@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const ML_API_URL = 'http://localhost:8000'; // Your FastAPI ML model URL
 
-async function predictHeight(imageBuffers, ageInMonths) {
+async function predictHeight(imageBuffers, ageInMonths, gender)  {
     try {
         const formData = new FormData();
         
@@ -14,6 +14,8 @@ async function predictHeight(imageBuffers, ageInMonths) {
         
         // Add age
         formData.append('age_in_months', ageInMonths.toString());
+        // Add gender
+formData.append('gender', gender.toLowerCase()); // 'm' or 'f'
 
         const response = await axios.post(
             `${ML_API_URL}/predict_height/`,
@@ -36,5 +38,34 @@ async function predictHeight(imageBuffers, ageInMonths) {
         };
     }
 }
+async function predictWeight(heightCm, ageInMonths, gender) {
+    try {
+        const formData = new FormData();
+        
+        formData.append('height_in_cm', heightCm.toString());
+        formData.append('age_in_months', ageInMonths.toString());
+        formData.append('gender', gender.toLowerCase()); // 'm' or 'f'
 
-module.exports = { predictHeight };
+        const response = await axios.post(
+            `${ML_API_URL}/predict_weight/`,
+            formData,
+            {
+                headers: formData.getHeaders(),
+                timeout: 10000
+            }
+        );
+
+        return {
+            success: true,
+            predictedWeight: response.data.predicted_weight_grams
+        };
+    } catch (error) {
+        console.error('Weight ML API Error:', error.response?.data || error.message);
+        return {
+            success: false,
+            error: error.response?.data?.detail || 'Weight prediction failed'
+        };
+    }
+}
+
+module.exports = { predictHeight, predictWeight };

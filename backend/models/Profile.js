@@ -26,7 +26,14 @@ const ProfileSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now },
     // Add these fields after the existing fields
 predictedHeight: { type: Number, default: null },
-lastHeightUpdate: { type: Date, default: null }
+lastHeightUpdate: { type: Date, default: null },
+predictedWeight: { type: Number, default: null },
+bmi: { type: Number, default: null },
+actualHeight: { type: Number, default: null },
+actualWeight: { type: Number, default: null },
+lastWeightUpdate: { type: Date, default: null },
+lastActualHeightUpdate: { type: Date, default: null },
+lastActualWeightUpdate: { type: Date, default: null }
 
 });
 

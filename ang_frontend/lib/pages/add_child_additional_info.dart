@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import '../widgets/custom_app_bar.dart';
 class AddChildAdditionalInfo extends StatefulWidget {
   const AddChildAdditionalInfo({super.key});
 
@@ -139,21 +139,8 @@ class _AddChildAdditionalInfoState extends State<AddChildAdditionalInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: isLoading ? null : () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Add New Child',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
+      appBar: CustomAppBarWithTitle(
+        title: 'Add New Child',
         actions: [
           Container(
             margin: const EdgeInsets.all(8),
@@ -163,7 +150,7 @@ class _AddChildAdditionalInfoState extends State<AddChildAdditionalInfo> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Text(
-              '2/2',
+              '1/2', // or '2/2' for additional info
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 12,
