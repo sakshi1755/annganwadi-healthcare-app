@@ -498,26 +498,21 @@ class _AddChildBasicInfoState extends State<AddChildBasicInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: CustomAppBarWithTitle(
-        title: 'Add New Child',
-        actions: [
-          Container(
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00C896),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Text(
-              '1/2', // or '2/2' for additional info
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Add New Child',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
-        ],
+        ),
       ),
       body: Column(
         children: [

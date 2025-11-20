@@ -1010,14 +1010,22 @@ class _ChildProfileState extends State<ChildProfile> {
     if (isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),
-        appBar: CustomAppBarWithTitle(
-          title: 'Child Profile',
-          actions: [
-            IconButton(
-              onPressed: _showEditProfileDialog,
-              icon: const Icon(Icons.edit_outlined, color: Colors.black87),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          ),
+          title: const Text(
+            'Child Profile',
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
             ),
-          ],
+          ),
+          centerTitle: true,
         ),
         body: const Center(
           child: CircularProgressIndicator(
@@ -1030,14 +1038,22 @@ class _ChildProfileState extends State<ChildProfile> {
     if (childData == null) {
       return Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),
-        appBar: CustomAppBarWithTitle(
-          title: 'Child Profile',
-          actions: [
-            IconButton(
-              onPressed: _showEditProfileDialog,
-              icon: const Icon(Icons.edit_outlined, color: Colors.black87),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          ),
+          title: const Text(
+            'Child Profile',
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
             ),
-          ],
+          ),
+          centerTitle: true,
         ),
         body: const Center(
           child: Text('Profile not found'),
@@ -1051,15 +1067,23 @@ class _ChildProfileState extends State<ChildProfile> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: CustomAppBarWithTitle(
-        title: 'Child Profile',
-        actions: [
-          IconButton(
-            onPressed: _showEditProfileDialog,
-            icon: const Icon(Icons.edit_outlined, color: Colors.black87),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
           ),
-        ],
-      ),
+          title: const Text(
+            'Child Profile',
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          centerTitle: true,
+        ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(

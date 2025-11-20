@@ -162,10 +162,15 @@ class _DashboardState extends State<Dashboard> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-          Image.asset(
-          'assets/images/logo.png',
-          height: 40,
-          ),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: Color(0xFF00C896),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.favorite, color: Colors.white, size: 24),
+            ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

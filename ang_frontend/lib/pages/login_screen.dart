@@ -742,209 +742,142 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/landing');
+          },
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
           child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  
-                  // LOGO - Add your logo image here
-                  Image.asset(
-                    'assets/images/logo.png',
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      // If logo image is not found, show instructions
-                      return Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.grey[400]!, width: 2),
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.image_not_supported, 
-                                size: 40, 
-                                color: Colors.grey[600]
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Add logo at:\nassets/images/logo.png',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                Text(
+                  "Welcome Back",
+                  style: GoogleFonts.poppins(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  "Select your role to continue",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                
+                // Test Mode Indicator
+                if (_isTestMode) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.orange),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.science, size: 16, color: Colors.orange),
+                        const SizedBox(width: 6),
+                        Text(
+                          "TEST MODE",
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.orange[800],
                           ),
                         ),
-                      );
-                    },
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // App Name in Hindi
-                  Text(
-                    'आंगनवाड़ी',
-                    style: GoogleFonts.poppins(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.shade700,
-                      letterSpacing: 1,
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  
-                  // App Name in English
-                  Text(
-                    'Anganwadi Care',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[700],
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 40),
-                  
-                  // Welcome Text
-                  Text(
-                    "Welcome Back",
-                    style: GoogleFonts.poppins(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Select your role to continue",
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  
-                  // Test Mode Indicator
-                  if (_isTestMode) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.orange.shade300),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.science, size: 18, color: Colors.orange[700]),
-                          const SizedBox(width: 8),
-                          Text(
-                            "TEST MODE",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.orange[800],
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Role Cards
-                  _roleCard(
-                    title: "Anganwadi Worker",
-                    subtitle: "Add children, track growth, upload photos",
-                    testEmail: _isTestMode ? testUsers['Worker'] : null,
-                    isSelected: selectedRole == "Anganwadi Worker",
-                    onTap: () {
-                      setState(() { selectedRole = "Anganwadi Worker"; });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _roleCard(
-                    title: "Administrator",
-                    subtitle: "Manage Anganwadis, view reports",
-                    testEmail: _isTestMode ? testUsers['Admin'] : null,
-                    isSelected: selectedRole == "Administrator",
-                    onTap: () {
-                      setState(() { selectedRole = "Administrator"; });
-                    },
-                  ),
-                  
-                  const SizedBox(height: 40),
-                  
-                  // Login Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 2,
-                      ),
-                      onPressed: _isLoading 
-                          ? null 
-                          : () => _handleTestLogin(context, selectedRole),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
-                              ),
-                            )
-                          : Text(
-                              _isTestMode ? "Test Login" : "Continue with Google",
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Footer Text
-                  Text(
-                    _isTestMode 
-                        ? "Using test credentials for development"
-                        : "Authentication data saved to MongoDB via Express",
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                      fontStyle: FontStyle.italic,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 40),
                 ],
-              ),
+                
+                const SizedBox(height: 20),
+                roleCard(
+                  icon: Icons.person_outline,
+                  title: "Anganwadi Worker",
+                  subtitle: "Add children, track growth, upload photos",
+                  testEmail: _isTestMode ? testUsers['Worker'] : null,
+                  isSelected: selectedRole == "Anganwadi Worker",
+                  onTap: () {
+                    setState(() { selectedRole = "Anganwadi Worker"; });
+                  },
+                ),
+                const SizedBox(height: 15),
+                roleCard(
+                  icon: Icons.shield_outlined,
+                  title: "Administrator",
+                  subtitle: "Manage Anganwadis, view reports",
+                  testEmail: _isTestMode ? testUsers['Admin'] : null,
+                  isSelected: selectedRole == "Administrator",
+                  onTap: () {
+                    setState(() { selectedRole = "Administrator"; });
+                  },
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                    onPressed: _isLoading 
+                        ? null 
+                        : () => _handleTestLogin(context, selectedRole),
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Icon(
+                            _isTestMode ? Icons.bug_report : Icons.login,
+                            color: Colors.white,
+                          ),
+                    label: Text(
+                      _isLoading 
+                          ? "Signing in..." 
+                          : (_isTestMode ? "Test Login" : "Continue with Google"),
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  _isTestMode 
+                      ? "Using test credentials for development"
+                      : "Authentication data saved to MongoDB via Express",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
           ),
         ),
@@ -952,8 +885,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Role Card Widget - NO ICONS
-  Widget _roleCard({
+  Widget roleCard({
+    required IconData icon,
     required String title,
     required String subtitle,
     String? testEmail,
@@ -962,90 +895,62 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.green.withOpacity(0.08) : Colors.grey[50],
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? Colors.green.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? Colors.green : Colors.grey.shade300,
-            width: 2,
+            width: 1.5,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Colors.green.withOpacity(0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
+            Icon(icon, size: 28, color: isSelected ? Colors.green : Colors.grey),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     title,
                     style: GoogleFonts.poppins(
-                      fontSize: 17,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.green.shade700 : Colors.black87,
+                      color: isSelected ? Colors.green : Colors.black,
                     ),
                   ),
-                ),
-                if (isSelected)
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 16,
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.grey[600],
                     ),
                   ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: Colors.grey[600],
-                height: 1.3,
+                  if (testEmail != null && _isTestMode) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        testEmail,
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: Colors.orange[800],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-            ),
-            if (testEmail != null && _isTestMode) ...[
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: Colors.orange.shade200,
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  testEmail,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    color: Colors.orange[800],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+            )
           ],
         ),
       ),

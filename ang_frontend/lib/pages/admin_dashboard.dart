@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_logo.dart';
+
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
 
@@ -16,10 +16,18 @@ class AdminDashboard extends StatelessWidget {
         ),
         title: Row(
           children: [
-          Image.asset(
-            'assets/images/logo.png',
-            height: 32,
-          ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00C896).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.favorite_border,
+                color: Color(0xFF00C896),
+                size: 20,
+              ),
+            ),
             const SizedBox(width: 12),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,

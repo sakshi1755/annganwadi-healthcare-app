@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_logo.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -14,7 +13,13 @@ class LandingPage extends StatelessWidget {
             const SizedBox(height: 50),
             Column(
               children: [
-                AppLogo(size: 80, showText: false),
+                // Replace icon with image from assets
+                Image.asset(
+                  'assets/images/sudhar.jpg',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
+                ),
                 const SizedBox(height: 20),
                 const Text(
                   "आंगनवाड़ी स्वास्थ्य",
