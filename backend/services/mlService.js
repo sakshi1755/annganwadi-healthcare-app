@@ -1,7 +1,7 @@
 const FormData = require('form-data');
 const axios = require('axios');
 
-const ML_API_URL = 'http://localhost:8000'; // Your FastAPI ML model URL
+const ML_API_URL = process.env.ML_URL; // Your FastAPI ML model URL
 
 async function predictHeight(imageBuffers, ageInMonths, gender)  {
     try {

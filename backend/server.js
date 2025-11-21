@@ -579,6 +579,7 @@ const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const anganwadiRoutes = require('./routes/anganwadiRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const adminDashboardRoutes = require('./routes/adminDashboardRoutes');
 
 // Initialize Express app
 const app = express();
@@ -609,6 +610,7 @@ app.use('/api/profiles', profileRoutes);
 app.use('/api/anganwadis', anganwadiRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/height', heightPredictionRoutes);
+app.use('/api/admin', adminDashboardRoutes);
 
 // 404 Handler
 app.use((req, res) => {
