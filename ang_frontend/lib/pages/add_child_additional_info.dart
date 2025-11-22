@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../widgets/custom_app_bar.dart';
 class AddChildAdditionalInfo extends StatefulWidget {
   const AddChildAdditionalInfo({super.key});
@@ -15,8 +16,8 @@ class _AddChildAdditionalInfoState extends State<AddChildAdditionalInfo> {
   bool isLoading = false;
   
   // API Configuration
-  static const String API_BASE_URL = 'http://10.0.2.2:3000';
-  
+  //static const String API_BASE_URL = 'http://10.0.2.2:3000';
+  final String API_BASE_URL = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
   // Data from previous screen
   String? childName;
   String? childDob;

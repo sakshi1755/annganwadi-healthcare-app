@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/custom_app_bar.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -12,8 +13,8 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   // API Configuration
-  static const String API_BASE_URL = 'http://10.0.2.2:3000';
-  
+  //static const String API_BASE_URL = 'http://10.0.2.2:3000';
+  final String API_BASE_URL = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
   // User data
   String? userId;
   String? userName;
@@ -96,10 +97,7 @@ class _DashboardState extends State<Dashboard> {
     try {
       // Get profiles for this anganwadi
       String url = '$API_BASE_URL/api/profiles';
-      if (anganwadiId != null) {
-        url += '?anganwadiId=$anganwadiId';
-      }
-
+    
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

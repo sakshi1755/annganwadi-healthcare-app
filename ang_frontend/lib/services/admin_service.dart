@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AdminService {
   // Update this to your backend URL
-  static const String baseUrl = 'http://10.0.2.2:3000/api/admin';
+
+  final String API_BASE_URL = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
+  late String baseUrl = '$API_BASE_URL/api/admin'; // 'http://10.0.2.2:3000/api/admin';
   // For Android emulator use: 'http://10.0.2.2:3000/api/admin'
   // For real device use your computer's IP: 'http://192.168.x.x:3000/api/admin'
 

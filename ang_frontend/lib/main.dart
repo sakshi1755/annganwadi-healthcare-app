@@ -10,11 +10,12 @@ import 'pages/add_child_basic_info.dart';
 import 'pages/add_child_additional_info.dart';
 import 'pages/child_profile.dart';
 import 'pages/view_profiles.dart';
- import 'pages/admin_dashboard.dart';
+import 'pages/admin_dashboard.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-
+  WidgetsFlutterBinding.ensureInitialized();
+   await dotenv.load(fileName: ".env");
 
 
   runApp(const MyApp());

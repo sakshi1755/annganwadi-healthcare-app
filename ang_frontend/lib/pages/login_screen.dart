@@ -611,7 +611,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -628,8 +628,8 @@ class _LoginScreenState extends State<LoginScreen> {
   // For Android Emulator: use 10.0.2.2
   // For iOS Simulator: use localhost
   // For Physical Device: use your computer's IP (e.g., 192.168.1.100)
-  static const String API_BASE_URL = 'http://10.0.2.2:3000'; 
-
+  //static const String API_BASE_URL = 'http://10.0.2.2:3000'; 
+final String API_BASE_URL = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
   // Test user credentials
   final Map<String, String> testUsers = {
     'Worker': 'priya.sharma@test.com',

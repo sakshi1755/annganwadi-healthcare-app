@@ -363,6 +363,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../widgets/custom_app_bar.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AddChildBasicInfo extends StatefulWidget {
   const AddChildBasicInfo({super.key});
 
@@ -374,7 +375,7 @@ class _AddChildBasicInfoState extends State<AddChildBasicInfo> {
   final _nameController = TextEditingController();
   final _dobController = TextEditingController();
   final _awcController = TextEditingController();
-  
+  final String API_BASE_URL = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
   String? userId;
   String? anganwadiId;
   DateTime? selectedDate;
@@ -450,7 +451,7 @@ class _AddChildBasicInfoState extends State<AddChildBasicInfo> {
       
       final response = await http.get(
         Uri.parse(
-          'http://10.0.2.2:3000/api/anganwadis/search?query=$query&searchBy=$searchBy&limit=10'
+          '$API_BASE_URL/api/anganwadis/search?query=$query&searchBy=$searchBy&limit=10'
         ),
       );
 

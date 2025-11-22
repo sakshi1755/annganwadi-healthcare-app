@@ -469,7 +469,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/custom_app_bar.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 class ViewProfiles extends StatefulWidget {
   const ViewProfiles({super.key});
 
@@ -478,7 +478,8 @@ class ViewProfiles extends StatefulWidget {
 }
 
 class _ViewProfilesState extends State<ViewProfiles> {
-  static const String API_BASE_URL = 'http://10.0.2.2:3000';
+ // static const String API_BASE_URL = 'http://10.0.2.2:3000';
+  final String API_BASE_URL = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
   
   String searchQuery = '';
   List<Map<String, dynamic>> allProfiles = [];
@@ -511,11 +512,17 @@ class _ViewProfilesState extends State<ViewProfiles> {
 
     try {
       String url = '$API_BASE_URL/api/profiles';
-      if (anganwadiId != null) {
-        url += '?anganwadiId=$anganwadiId';
-      }
+      // if (anganwadiId != null) {
+      //   url += '?anganwadiId=$anganwadiId';
+      // }
 
-      final response = await http.get(Uri.parse(url));
+
+    print('DEBUG: Fetching from: $url');  // Add this
+
+    final response = await http.get(Uri.parse(url));
+
+    print('DEBUG: Status: ${response.statusCode}');  // Add this
+    print('DEBUG: Body: ${response.body}'); 
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

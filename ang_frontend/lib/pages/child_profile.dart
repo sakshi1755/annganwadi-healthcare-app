@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import '../widgets/custom_app_bar.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ChildProfile extends StatefulWidget {
   const ChildProfile({super.key});
@@ -14,7 +15,7 @@ class ChildProfile extends StatefulWidget {
 }
 
 class _ChildProfileState extends State<ChildProfile> {
-  static const String API_BASE_URL = 'http://10.0.2.2:3000';
+  final String API_BASE_URL = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
   
   Map<String, dynamic>? childData;
   bool isLoading = true;
@@ -201,89 +202,130 @@ class _ChildProfileState extends State<ChildProfile> {
     return Colors.red;
   }
 
-  Future<void> _handleImageUpload(ImageSource source) async {
-    Navigator.pop(context); // Close bottom sheet
+Future<void> _handleImageUpload(ImageSource source) async {
+  Navigator.pop(context); // Close bottom sheet
+
+  try {
+    final ImagePicker picker = ImagePicker();
     
-    try {
-      final ImagePicker picker = ImagePicker();
+    if (source == ImageSource.camera) {
+      // NEW: Loop to capture 4 photos
+      List<XFile> capturedImages = [];
       
-      if (source == ImageSource.camera) {
-        // Take photo with camera
-        final XFile? image = await picker.pickImage(
-          source: source,
-          maxWidth: 1920,
-          maxHeight: 1080,
-          imageQuality: 85,
-        );
-        
-        if (image != null) {
-          setState(() {
-            _selectedImages.add(image);
-          });
-          
-          // Check if we have 4 images
-          if (_selectedImages.length == 4) {
-            // Automatically proceed with prediction using profile data
-            await _uploadImagesAndPredictAuto();
-          } else {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${_selectedImages.length}/4 images captured. Take ${4 - _selectedImages.length} more.'),
-                  backgroundColor: Colors.blue,
-                  action: SnackBarAction(
-                    label: 'Continue',
-                    textColor: Colors.white,
-                    onPressed: () {
-                      _handleImageUpload(ImageSource.camera);
-                    },
+      for (int i = 0; i < 4; i++) {
+        // Show progress dialog
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: Text('Capture Photo ${i + 1}/4'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.camera_alt, size: 48, color: Color(0xFF00C896)),
+                  const SizedBox(height: 16),
+                  Text('Please take photo ${i + 1} of 4'),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: i / 4,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00C896)),
                   ),
-                ),
-              );
-            }
-          }
+                ],
+              ),
+            ),
+          );
         }
-      } else {
-        // Pick multiple from gallery
-        final List<XFile> images = await picker.pickMultiImage(
+        
+        // Take photo
+        final XFile? image = await picker.pickImage(
+          source: ImageSource.camera,
           maxWidth: 1920,
           maxHeight: 1080,
           imageQuality: 85,
         );
         
-        if (images.isNotEmpty) {
-          if (images.length != 4) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Please select exactly 4 images'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            }
-            return;
+        // Close progress dialog
+        if (mounted) Navigator.pop(context);
+        
+        if (image == null) {
+          // User cancelled - abort process
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Photo capture cancelled. ${capturedImages.length} photos taken.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
           }
-          
-          setState(() {
-            _selectedImages = images;
-          });
-          
-          // Automatically proceed with prediction using profile data
-          await _uploadImagesAndPredictAuto();
+          return; // Exit loop
         }
+        
+        capturedImages.add(image);
+        
+        // Brief pause between captures
+        await Future.delayed(const Duration(milliseconds: 500));
       }
-    } catch (e) {
-      print('Error picking images: $e');
+      
+      // All 4 photos captured successfully
+      setState(() {
+        _selectedImages = capturedImages;
+      });
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to pick images: ${e.toString()}'),
-            backgroundColor: Colors.red,
+          const SnackBar(
+            content: Text('4 photos captured successfully!'),
+            backgroundColor: Color(0xFF00C896),
+            duration: Duration(seconds: 2),
           ),
         );
       }
+      
+      // Proceed with prediction
+      await _uploadImagesAndPredictAuto();
+      
+    } else {
+      // Gallery: Pick 4 images at once (unchanged)
+      final List<XFile> images = await picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+      
+      if (images.isNotEmpty) {
+        if (images.length != 4) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please select exactly 4 images'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+          return;
+        }
+        
+        setState(() {
+          _selectedImages = images;
+        });
+        
+        await _uploadImagesAndPredictAuto();
+      }
+    }
+  } catch (e) {
+    print('Error picking images: $e');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to pick images: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+}
 
   // NEW METHOD: Automatically extracts DOB and gender from profile
   Future<void> _uploadImagesAndPredictAuto() async {
