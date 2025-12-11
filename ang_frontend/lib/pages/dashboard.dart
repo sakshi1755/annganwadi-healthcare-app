@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/custom_app_bar.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../services/storage_service.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -126,29 +127,52 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  Future<void> _handleLogout() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
+Future<void> _handleLogout() async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Logout'),
+      content: const Text('Are you sure you want to logout?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Logout'),
+        ),
+      ],
+    ),
+  );
 
-    if (confirm == true && mounted) {
+  if (confirm == true && mounted) {
+    try {
+      // Get token before clearing
+      final token = await StorageService.getToken();
+      
+      // Call backend logout endpoint
+      final apiBaseUrl = dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000';
+      await http.post(
+        Uri.parse('$apiBaseUrl/api/logout'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+    } catch (e) {
+      print('Logout API error: $e');
+      // Continue with local logout even if API fails
+    }
+
+    // Clear local storage
+    await StorageService.clearAll();
+
+    if (mounted) {
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

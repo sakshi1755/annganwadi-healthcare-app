@@ -1,16 +1,3 @@
-// const mongoose = require('mongoose');
-
-// const AnganwadiSchema = new mongoose.Schema({
-//     anganwadiId: { type: String, required: true, unique: true },
-//     name: { type: String, required: true },
-//     location: { type: String, required: true },
-//     village: { type: String },
-//     district: { type: String },
-//     workerIds: [{ type: String }],
-//     createdAt: { type: Date, default: Date.now }
-// });
-
-// module.exports = mongoose.model('Anganwadi', AnganwadiSchema);
 const mongoose = require('mongoose');
 
 const AnganwadiSchema = new mongoose.Schema({
@@ -21,12 +8,17 @@ const AnganwadiSchema = new mongoose.Schema({
     Project_Name: { type: String, index: true },
     Sector_Code: { type: String, index: true },
     Sector_name: { type: String, index: true },
-    AWC_Code: { type: String, required: true, unique: true, index: true },
+    AWC_Code: { 
+        type: mongoose.Schema.Types.Mixed,  // Accept both string and number
+        required: true, 
+        unique: true, 
+        index: true 
+    },
     AWC_Name: { type: String, required: true },
     AWC_TYPE: { type: String },
     
     // Legacy fields (optional, for backward compatibility)
-    anganwadiId: { type: String, sparse: true }, // sparse allows multiple nulls
+    anganwadiId: { type: String, sparse: true },
     name: { type: String },
     location: { type: String },
     village: { type: String },
@@ -34,6 +26,8 @@ const AnganwadiSchema = new mongoose.Schema({
     workerIds: [{ type: String }],
     
     createdAt: { type: Date, default: Date.now }
+}, {
+    collection: 'anganwadi_centers'  // Point to correct collection
 });
 
 // Create text index for autocomplete search

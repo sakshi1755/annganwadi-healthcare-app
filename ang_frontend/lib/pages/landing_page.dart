@@ -13,6 +13,13 @@ class LandingPage extends StatelessWidget {
             const SizedBox(height: 50),
             Column(
               children: [
+                 Image.asset(
+                  'assets/images/1000233761-removebg-preview[1].png',
+                  width: 80,  // Small decent size
+                  height: 80,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 10), 
                 // Replace icon with image from assets
                 Image.asset(
                   'assets/images/sudhar.jpg',

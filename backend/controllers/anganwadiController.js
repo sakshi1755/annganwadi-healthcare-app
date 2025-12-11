@@ -1,6 +1,5 @@
 const Anganwadi = require('../models/Anganwadi');
 
-// Search Anganwadis with autocomplete - HANDLES CSV DATA
 exports.searchAnganwadis = async (req, res) => {
     try {
         const { query, searchBy = 'all', limit = 10 } = req.query;
@@ -13,18 +12,52 @@ exports.searchAnganwadis = async (req, res) => {
             });
         }
 
-        const searchRegex = new RegExp(query, 'i');
+        const isNumeric = /^\d+$/.test(query);
+        
         let searchCriteria;
-
+        
         if (searchBy === 'code') {
-            searchCriteria = {
-                $or: [
+            const codeConditions = [];
+            
+            if (isNumeric) {
+                // Search as string (exact and partial)
+                codeConditions.push(
+                    { AWC_Code: query }, // Exact string match
+                    { AWC_Code: { $regex: `^${query}` } }, // Starts with (string)
+                    { Project_Code: query },
+                    { Project_Code: { $regex: `^${query}` } },
+                    { Sector_Code: query },
+                    { Sector_Code: { $regex: `^${query}` } }
+                );
+                
+                // CRITICAL: Also search as number (for imported CSV data)
+                const numQuery = Number(query);
+                codeConditions.push(
+                    { AWC_Code: numQuery }, // Exact number match
+                    { Project_Code: numQuery },
+                    { Sector_Code: numQuery }
+                );
+                
+                // For partial number matching, convert to string in query
+                codeConditions.push(
+                    { $expr: { $regexMatch: { input: { $toString: "$AWC_Code" }, regex: `^${query}` } } },
+                    { $expr: { $regexMatch: { input: { $toString: "$Project_Code" }, regex: `^${query}` } } },
+                    { $expr: { $regexMatch: { input: { $toString: "$Sector_Code" }, regex: `^${query}` } } }
+                );
+            } else {
+                // Text search for non-numeric queries
+                const searchRegex = new RegExp(query, 'i');
+                codeConditions.push(
                     { AWC_Code: searchRegex },
                     { Project_Code: searchRegex },
                     { Sector_Code: searchRegex }
-                ]
-            };
+                );
+            }
+            
+            searchCriteria = { $or: codeConditions };
+            
         } else if (searchBy === 'name') {
+            const searchRegex = new RegExp(query, 'i');
             searchCriteria = {
                 $or: [
                     { AWC_Name: searchRegex },
@@ -35,23 +68,62 @@ exports.searchAnganwadis = async (req, res) => {
             };
         } else {
             // Search all fields
-            searchCriteria = {
-                $or: [
+            const searchRegex = new RegExp(query, 'i');
+            const allConditions = [
+                { AWC_Name: searchRegex },
+                { Sector_name: searchRegex },
+                { District_Name: searchRegex },
+                { Project_Name: searchRegex }
+            ];
+            
+            if (isNumeric) {
+                const numQuery = Number(query);
+                allConditions.push(
+                    // String searches
+                    { AWC_Code: query },
+                    { AWC_Code: { $regex: `^${query}` } },
+                    { Project_Code: query },
+                    { Project_Code: { $regex: `^${query}` } },
+                    { Sector_Code: query },
+                    { Sector_Code: { $regex: `^${query}` } },
+                    // Number searches
+                    { AWC_Code: numQuery },
+                    { Project_Code: numQuery },
+                    { Sector_Code: numQuery },
+                    // Convert number to string and search
+                    { $expr: { $regexMatch: { input: { $toString: "$AWC_Code" }, regex: `^${query}` } } },
+                    { $expr: { $regexMatch: { input: { $toString: "$Project_Code" }, regex: `^${query}` } } },
+                    { $expr: { $regexMatch: { input: { $toString: "$Sector_Code" }, regex: `^${query}` } } }
+                );
+            } else {
+                allConditions.push(
                     { AWC_Code: searchRegex },
-                    { AWC_Name: searchRegex },
-                    { Sector_name: searchRegex },
-                    { District_Name: searchRegex },
                     { Project_Code: searchRegex },
-                    { Project_Name: searchRegex }
-                ]
-            };
+                    { Sector_Code: searchRegex }
+                );
+            }
+            
+            searchCriteria = { $or: allConditions };
         }
+
+        console.log('🔍 Search Query:', query);
+        console.log('📋 Search By:', searchBy);
+        console.log('🔢 Is Numeric:', isNumeric);
 
         const results = await Anganwadi.find(searchCriteria)
             .limit(parseInt(limit))
             .lean();
 
-        // Format results - CONVERT NUMBERS TO STRINGS
+        console.log('✅ Results found:', results.length);
+        
+        if (results.length > 0) {
+            console.log('📄 Sample result:', {
+                AWC_Code: results[0].AWC_Code,
+                AWC_Code_type: typeof results[0].AWC_Code,
+                AWC_Name: results[0].AWC_Name
+            });
+        }
+
         const formattedResults = results.map(item => ({
             AWC_Code: String(item.AWC_Code || ''),
             AWC_Name: String(item.AWC_Name || 'Unknown'),
@@ -65,8 +137,9 @@ exports.searchAnganwadis = async (req, res) => {
             results: formattedResults, 
             count: formattedResults.length 
         });
+        
     } catch (error) {
-        console.error('Search error:', error);
+        console.error('❌ Search error:', error);
         res.status(500).json({ 
             success: false, 
             message: error.message 
@@ -74,18 +147,26 @@ exports.searchAnganwadis = async (req, res) => {
     }
 };
 
-// Get Anganwadi by Code - HANDLES CSV DATA
 exports.getAnganwadiByCode = async (req, res) => {
     try {
         const { code } = req.params;
+        const isNumeric = /^\d+$/.test(code);
+        
+        const searchConditions = [
+            { AWC_Code: code }, // String match
+            { Project_Code: code }
+        ];
+        
+        if (isNumeric) {
+            const numCode = Number(code);
+            searchConditions.push(
+                { AWC_Code: numCode }, // Number match
+                { Project_Code: numCode }
+            );
+        }
         
         const anganwadi = await Anganwadi.findOne({
-            $or: [
-                { AWC_Code: code },
-                { AWC_Code: parseInt(code) }, // Try as number too
-                { Project_Code: code },
-                { Project_Code: parseInt(code) }
-            ]
+            $or: searchConditions
         }).lean();
         
         if (!anganwadi) {
@@ -95,7 +176,6 @@ exports.getAnganwadiByCode = async (req, res) => {
             });
         }
         
-        // Convert all fields to strings
         const formatted = {
             ...anganwadi,
             AWC_Code: String(anganwadi.AWC_Code || ''),
@@ -118,12 +198,10 @@ exports.getAnganwadiByCode = async (req, res) => {
     }
 };
 
-// Get all anganwadis
 exports.getAllAnganwadis = async (req, res) => {
     try {
         const anganwadis = await Anganwadi.find().lean();
         
-        // Convert numeric fields to strings
         const formatted = anganwadis.map(item => ({
             ...item,
             AWC_Code: String(item.AWC_Code || ''),
@@ -138,7 +216,6 @@ exports.getAllAnganwadis = async (req, res) => {
     }
 };
 
-// Get all districts
 exports.getDistricts = async (req, res) => {
     try {
         const districts = await Anganwadi.distinct('District_Name');
@@ -155,7 +232,6 @@ exports.getDistricts = async (req, res) => {
     }
 };
 
-// Get sectors by district
 exports.getSectorsByDistrict = async (req, res) => {
     try {
         const { district } = req.params;
@@ -173,7 +249,6 @@ exports.getSectorsByDistrict = async (req, res) => {
     }
 };
 
-// Get anganwadis by sector
 exports.getAnganwadisBySector = async (req, res) => {
     try {
         const { sector } = req.params;
@@ -181,7 +256,6 @@ exports.getAnganwadisBySector = async (req, res) => {
             Sector_name: sector
         }).lean();
         
-        // Convert numeric fields to strings
         const formatted = anganwadis.map(item => ({
             ...item,
             AWC_Code: String(item.AWC_Code || ''),
